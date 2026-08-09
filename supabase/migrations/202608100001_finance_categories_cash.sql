@@ -17,6 +17,7 @@ create trigger set_updated_at before update on finance_accounts for each row exe
 alter table finance_accounts enable row level security;alter table finance_cash_movements enable row level security;
 create policy "own finance accounts" on finance_accounts for all to authenticated using(created_by=auth.uid()) with check(created_by=auth.uid());
 create policy "own cash movements" on finance_cash_movements for select to authenticated using(created_by=auth.uid());
+create policy "own cash movement inserts" on finance_cash_movements for insert to authenticated with check(created_by=auth.uid());
 
 create or replace function ensure_finance_defaults() returns void language plpgsql security invoker set search_path=public as $$
 declare n text;

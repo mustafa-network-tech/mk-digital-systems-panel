@@ -11,6 +11,7 @@ MK Digital Systems projelerinin kod, deployment, domain, belge, yedek ve recover
    Proje düzenleme alanları için `supabase/migrations/202608090004_project_editing.sql` dosyasını da çalıştırın.
    Finans kategori ve Kasa modülü için `supabase/migrations/202608100001_finance_categories_cash.sql` dosyasını çalıştırın.
    Kasa migration'ını daha önce çalıştırdıysanız `supabase/migrations/202608100002_cash_ledger_fix.sql` düzeltmesini de çalıştırın.
+   Kasa hareketlerinin RLS izni için `supabase/migrations/202608100003_cash_movement_insert_policy.sql` dosyasını çalıştırın.
 3. `npm install` ardından `npm run dev` çalıştırın.
 
 Bucket migration tarafından private ve 100 MB limitli oluşturulur. Secret değerleri veritabanına kaydedilmez; recovery ekranı yalnızca environment değişkenlerinin adını ve yapılandırma durumunu tutar.
