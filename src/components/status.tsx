@@ -1,3 +1,3 @@
-import {Circle} from "lucide-react";import {statusLabel} from "@/lib/data";
+import {Circle} from "lucide-react";const statusLabel:Record<string,string>={fikir:"Fikir",gelistiriliyor:"Geliştiriliyor",test:"Test",aktif:"Aktif",bakim:"Bakım",beklemede:"Beklemede",tamamlandi:"Tamamlandı",arsiv:"Arşiv"};
 export function Status({value}:{value:string}){const c=value==="aktif"?"#16a34a":value==="gelistiriliyor"?"#2563eb":value==="test"?"#9333ea":"#d97706";return <span className="badge" style={{color:c,background:`${c}12`}}><Circle size={7} fill="currentColor"/>{statusLabel[value]||value}</span>}
 export function Health({value}:{value:string}){const map:Record<string,[string,string]>={healthy:["Sağlıklı","#16a34a"],warning:["Uyarı","#d97706"],critical:["Kritik","#dc2626"],unknown:["Bilinmiyor","#64748b"]};const [x,c]=map[value]||map.unknown;return <span className="badge" style={{color:c,background:`${c}12`}}><Circle size={7} fill="currentColor"/>{x}</span>}
