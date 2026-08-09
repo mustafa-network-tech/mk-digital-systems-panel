@@ -19,6 +19,7 @@
 .env.production.local
 .env.*.local
 
+
 # Keep the safe environment variable template
 !.env.example
 

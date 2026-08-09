@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Archive, FolderKanban, Globe2, LayoutDashboard, Loader2, LogOut, Search, Settings, ShieldCheck, Users, WalletCards } from "lucide-react";
+import { FolderKanban, Globe2, LayoutDashboard, Loader2, LogOut, Search, Settings, ShieldCheck, Users, WalletCards } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
-const nav = [["/dashboard", "Dashboard", LayoutDashboard], ["/projects", "Projeler", FolderKanban], ["/customers", "Müşteriler", Users], ["/backups", "Yedekler", Archive], ["/domains", "Domainler", Globe2], ["/settings", "Ayarlar", Settings]] as const;
+const nav = [["/dashboard", "Dashboard", LayoutDashboard], ["/projects", "Projeler", FolderKanban], ["/customers", "Müşteriler", Users], ["/domains", "Domainler", Globe2], ["/settings", "Ayarlar", Settings]] as const;
 const finance = [["/finance", "Genel Bakış"], ["/finance/income", "Gelirler"], ["/finance/expenses", "Giderler"], ["/finance/installments", "Taksitler"], ["/finance/history", "Geçmiş / İstatistikler"]] as const;
 
 export function Sidebar() {
