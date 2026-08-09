@@ -1,0 +1,66 @@
+# Dependencies
+/node_modules/
+/.pnp
+.pnp.*
+
+# Next.js build output
+/.next/
+/out/
+
+# Production builds
+/build/
+/dist/
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Keep the safe environment variable template
+!.env.example
+
+# Supabase local development files
+/supabase/.branches/
+/supabase/.temp/
+
+# Test and coverage output
+/coverage/
+/.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript cache
+*.tsbuildinfo
+next-env.d.ts
+
+# Editor and IDE settings
+/.idea/
+/.vscode/
+*.swp
+*.swo
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Vercel local configuration
+/.vercel/
+
+# Certificates and private keys
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local service-account credentials
+service-account.json
+*-service-account.json

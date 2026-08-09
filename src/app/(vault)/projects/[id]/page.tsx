@@ -1,0 +1,1 @@
+import {Header} from "@/components/sidebar";import {ProjectDetail} from "@/components/project-detail";export default async function Page({params}:{params:Promise<{id:string}>}){const {id}=await params;return <><Header title="Proje Detayı" description="Tüm proje varlıkları tek bir yerde."/><div className="p-5 lg:p-8"><ProjectDetail id={id}/></div></>}
