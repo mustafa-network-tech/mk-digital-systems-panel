@@ -47,5 +47,7 @@ export function Sidebar() {
 }
 
 export function Header({ title, description }: { title: string; description?: string }) {
-  return <header className="flex min-h-20 items-center justify-between border-b bg-white px-5 lg:px-8"><div><h1 className="text-xl font-bold">{title}</h1>{description && <p className="mt-1 text-sm muted">{description}</p>}</div><div className="flex items-center gap-3"><div className="hidden items-center gap-2 rounded-lg border px-3 py-2 text-sm text-slate-500 md:flex"><Search size={16}/>Hızlı ara</div><div className="grid h-9 w-9 place-items-center rounded-full bg-slate-900 text-sm text-white">MK</div></div></header>;
+  const pathname = usePathname();
+  const projectMatch = pathname.match(/^\/projects\/([^/]+)$/);
+  return <header className="flex min-h-20 items-center justify-between border-b bg-white px-5 lg:px-8"><div><h1 className="text-xl font-bold">{title}</h1>{description && <p className="mt-1 text-sm muted">{description}</p>}</div><div className="flex items-center gap-3">{projectMatch&&<Link href={`/projects/${projectMatch[1]}/edit`} className="btn">Projeyi düzenle</Link>}<div className="hidden items-center gap-2 rounded-lg border px-3 py-2 text-sm text-slate-500 md:flex"><Search size={16}/>Hızlı ara</div><div className="grid h-9 w-9 place-items-center rounded-full bg-slate-900 text-sm text-white">MK</div></div></header>;
 }

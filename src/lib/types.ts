@@ -1,4 +1,4 @@
-export type Project={id:string;name:string;short_name:string|null;description:string|null;customer_id:string|null;status:string;favorite:boolean;critical:boolean;archived:boolean;health_status:string;last_backup_at:string|null;updated_at:string;live_url:string|null;customers?:{name:string}|null};
+export type Project={id:string;name:string;short_name:string|null;description:string|null;customer_id:string|null;status:string;favorite:boolean;critical:boolean;archived:boolean;health_status:string;last_backup_at:string|null;updated_at:string;live_url:string|null;uses_supabase:boolean;customers?:{name:string}|null};
 export type Customer={id:string;name:string;contact_person:string|null;phone:string|null;email:string|null;website:string|null;notes:string|null};
 export type Domain={id:string;domain:string;registrar:string|null;expiry_date:string|null;auto_renew:boolean;projects?:{name:string}|null};
 export type FinanceCategory={id:string;name:string;type:"income"|"expense";color:string|null};
