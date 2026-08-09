@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
 const nav = [["/dashboard", "Dashboard", LayoutDashboard], ["/projects", "Projeler", FolderKanban], ["/customers", "Müşteriler", Users], ["/domains", "Domainler", Globe2], ["/settings", "Ayarlar", Settings]] as const;
-const finance = [["/finance", "Genel Bakış"], ["/finance/income", "Gelirler"], ["/finance/expenses", "Giderler"], ["/finance/installments", "Taksitler"], ["/finance/history", "Geçmiş / İstatistikler"]] as const;
+const finance = [["/finance", "Genel Bakış"], ["/finance/income", "Gelirler"], ["/finance/expenses", "Giderler"], ["/finance/installments", "Taksitler"], ["/finance/cash", "Kasa"], ["/finance/history", "Geçmiş / İstatistikler"]] as const;
 
 export function Sidebar() {
   const pathname = usePathname();
