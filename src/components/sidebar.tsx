@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { FolderKanban, Globe2, LayoutDashboard, Loader2, LogOut, Search, Settings, ShieldCheck, Users, WalletCards } from "lucide-react";
+import { BriefcaseBusiness, FolderKanban, Globe2, LayoutDashboard, Loader2, LogOut, Search, Settings, ShieldCheck, Users, WalletCards } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
@@ -41,6 +41,7 @@ export function Sidebar() {
       <div className="my-4 border-t border-white/10"/>
       <Link href="/finance" className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm ${pathname.startsWith("/finance") ? "bg-emerald-600" : "text-slate-400 hover:bg-white/5"}`}><WalletCards size={18}/>Kişisel Finans</Link>
       <div className="ml-6 mt-1">{finance.map(([href, label]) => <Link key={href} href={href} className="block rounded px-3 py-1.5 text-xs text-slate-500 hover:text-white">{label}</Link>)}</div>
+      <Link href="/work-advance" className={`mt-2 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm ${pathname.startsWith("/work-advance") ? "bg-blue-600" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}><BriefcaseBusiness size={18}/>İş Avansı</Link>
     </nav>
     <div className="relative z-10 border-t border-white/10 p-3"><button type="button" onClick={handleSignOut} disabled={isSigningOut} className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-400 hover:bg-white/5 disabled:cursor-wait disabled:opacity-60">{isSigningOut ? <Loader2 className="animate-spin" size={18}/> : <LogOut size={18}/>} {isSigningOut ? "Çıkış yapılıyor..." : "Çıkış yap"}</button></div>
   </aside>;
