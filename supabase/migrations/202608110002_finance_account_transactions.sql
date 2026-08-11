@@ -40,7 +40,7 @@ end;$$;
 create or replace function save_finance_expense(
   p_id uuid,p_amount numeric,p_date date,p_category_id uuid,p_payment_method text,p_description text,p_recurring boolean,p_account_id uuid
 ) returns uuid language plpgsql security invoker set search_path=public as $$
-declare v_id uuid;v_old finance_expenses%rowtype;v_balance numeric;
+declare v_id uuid;v_old finance_expenses%rowtype;
 begin
  if p_amount<=0 then raise exception 'Geçersiz tutar';end if;
  if p_id is not null then
@@ -49,9 +49,8 @@ begin
   if v_old.account_id is not null then update finance_accounts set balance=balance+v_old.amount where id=v_old.account_id;end if;
   delete from finance_cash_movements where source_type='expense' and source_id=p_id and created_by=auth.uid();
  end if;
- select balance into v_balance from finance_accounts where id=p_account_id and created_by=auth.uid() and is_active for update;
+ perform 1 from finance_accounts where id=p_account_id and created_by=auth.uid() and is_active for update;
  if not found then raise exception 'Hesap bulunamadı';end if;
- if v_balance<p_amount then raise exception 'Yetersiz bakiye';end if;
  if p_id is null then
   insert into finance_expenses(amount,expense_date,category_id,payment_method,description,recurring,account_id,created_by)
   values(p_amount,p_date,p_category_id,p_payment_method,p_description,p_recurring,p_account_id,auth.uid()) returning id into v_id;
