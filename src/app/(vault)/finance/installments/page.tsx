@@ -9,14 +9,18 @@ export default async function Page({searchParams}:{searchParams:Promise<{month?:
  const scheduled=installments.flatMap(installment=>{
   const [startYear,startMonth]=installment.start_date.slice(0,7).split("-").map(Number);
   const sequence=(selectedYear-startYear)*12+(selectedMonth-startMonth)+1;
-  if(sequence<1||sequence>installment.installment_count||!installment.include_in_monthly_total)return [];
+  if(sequence<1||sequence>installment.installment_count)return [];
   const payment=(installment.finance_installment_payments||[]).find(item=>item.installment_sequence===sequence);
-  return [{installment,sequence,payment}];
+  return [{installment,payment}];
  });
  const total=scheduled.reduce((sum,item)=>sum+Number(item.installment.installment_amount),0);
  const paid=scheduled.reduce((sum,item)=>sum+(item.payment?Number(item.payment.amount):0),0);
  const remaining=Math.max(0,total-paid);
- return <><Header title="Taksitler" description="Aylık ödeme planı yalnızca bilgi amaçlıdır; gideri ve kasa bakiyesini etkilemez."/><div className="space-y-5 p-5 lg:p-8"><div className="flex flex-wrap justify-between gap-4"><FinanceNav/><MonthPicker value={range.value} path="/finance/installments"/></div><div className="grid gap-3 sm:grid-cols-3"><SummaryCard label="Bu Ay Toplam Taksit" value={total}/><SummaryCard label="Bu Ay Ödenen" value={paid} tone="green"/><SummaryCard label="Bu Ay Kalan" value={remaining} tone={remaining>0?"amber":"green"}/></div><p className="text-xs muted">Yalnızca “Aylık genel taksit toplamına dahil et” seçili kayıtlar hesaplanır. Bu rakamlar kasa ve gider tablosuna işlenmez.</p><InstallmentForm/><section><h2 className="mb-3 font-bold">Aktif Taksitler</h2><Installments items={installments.filter(item=>item.status!=="completed")}/></section></div></>
+ const grandTotalRemaining=installments.filter(item=>item.include_in_grand_total).reduce((sum,item)=>{
+  const allPaid=(item.finance_installment_payments||[]).reduce((paymentSum,payment)=>paymentSum+Number(payment.amount),0);
+  return sum+Math.max(0,Number(item.total_amount)-allPaid);
+ },0);
+ return <><Header title="Taksitler" description="Aylık ödeme planı yalnızca bilgi amaçlıdır; gideri ve kasa bakiyesini etkilemez."/><div className="space-y-5 p-5 lg:p-8"><div className="flex flex-wrap justify-between gap-4"><FinanceNav/><MonthPicker value={range.value} path="/finance/installments"/></div><div><div className="grid gap-3 sm:grid-cols-3"><SummaryCard label="Bu Ay Genel Toplam" value={total}/><SummaryCard label="Bu Ay Ödenen" value={paid} tone="green"/><SummaryCard label="Bu Ay Kalan" value={remaining} tone={remaining>0?"amber":"green"}/></div><div className="mt-2 text-right text-xs muted">Genel Toplam: <b className="text-sm text-slate-700">{money(grandTotalRemaining)}</b><span className="ml-1">(işaretli taksitlerin ödenmemiş tutarı)</span></div></div><p className="text-xs muted">Bütün taksitler aylık hesaba dahildir. Sağ alttaki Genel Toplam yalnızca “Genel toplama dahil et” seçili taksitlerin ödenmemiş tutarını gösterir. Bu bilgiler kasa ve gider tablosuna işlenmez.</p><InstallmentForm/><section><h2 className="mb-3 font-bold">Aktif Taksitler</h2><Installments items={installments.filter(item=>item.status!=="completed")}/></section></div></>
 }
 
 function SummaryCard({label,value,tone="blue"}:{label:string;value:number;tone?:"blue"|"green"|"amber"}){const color={blue:"text-blue-700",green:"text-emerald-600",amber:"text-amber-600"}[tone];return <div className="card p-4"><div className={`text-xl font-bold ${color}`}>{money(value)}</div><div className="mt-1 text-sm muted">{label}</div></div>}
