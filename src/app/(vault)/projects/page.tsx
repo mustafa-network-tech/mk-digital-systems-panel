@@ -1,2 +1,14 @@
-import Link from "next/link";import {Header} from "@/components/sidebar";import {ProjectTable} from "@/components/project-table";import {createClient} from "@/lib/supabase/server";import type {Project} from "@/lib/types";import {Plus,Building2,Users} from "lucide-react";
-export default async function Page(){const supabase=await createClient();const {data,error}=await supabase.from("projects").select("*,customers(name)").eq("archived",false).order("updated_at",{ascending:false});if(error)throw new Error(error.message);const projects=(data||[]) as Project[],internal=projects.filter(p=>!p.customer_id),customerProjects=projects.filter(p=>p.customer_id);return <><Header title="Projeler" description="Şirket içi ve müşteri projelerini ayrı olarak yönetin."/><div className="space-y-7 p-5 lg:p-8"><div className="flex justify-end"><Link href="/projects/new" className="btn btn-primary"><Plus size={17}/>Yeni Proje</Link></div><section><div className="mb-3 flex items-center gap-2"><Building2 size={19} className="text-blue-600"/><h2 className="font-bold">MK Digital Systems Projeleri</h2><span className="badge bg-blue-50 text-blue-700">{internal.length}</span></div><ProjectTable projects={internal} emptyText="Henüz MK Digital Systems projesi bulunmuyor."/></section><section><div className="mb-3 flex items-center gap-2"><Users size={19} className="text-violet-600"/><h2 className="font-bold">Müşteri Projeleri</h2><span className="badge bg-violet-50 text-violet-700">{customerProjects.length}</span></div><ProjectTable projects={customerProjects} emptyText="Henüz müşteriye ait proje bulunmuyor."/></section></div></>}
+import Link from "next/link";
+import {Plus} from "lucide-react";
+import {Header} from "@/components/sidebar";
+import {ProjectTable} from "@/components/project-table";
+import {createClient} from "@/lib/supabase/server";
+import type {Project} from "@/lib/types";
+
+export default async function Page(){
+  const supabase=await createClient();
+  const {data,error}=await supabase.from("projects").select("*,customers(name),project_technologies(technologies(id,name))").eq("archived",false).order("updated_at",{ascending:false});
+  if(error)throw new Error(error.message);
+  const projects=(data||[]) as Project[];
+  return <><Header title="Projeler" description="Müşteri projeleri ve portföy çalışmalarını tek listeden yönetin."/><div className="space-y-5 p-5 lg:p-8"><div className="flex items-center justify-between gap-4"><div><h2 className="font-bold">Tüm Projeler</h2><p className="mt-1 text-sm muted">{projects.length} proje</p></div><Link href="/projects/new" className="btn btn-primary"><Plus size={17}/>Yeni Proje</Link></div><ProjectTable projects={projects}/></div></>;
+}
