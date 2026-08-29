@@ -8,7 +8,7 @@ import {SourceUpload} from "@/components/source-upload";
 import {Health,Status} from "@/components/status";
 import {createClient} from "@/lib/supabase/server";
 
-const groupLabels:Record<string,string>={customer_project:"Müşteri Projesi",portfolio:"Portföy"};
+const groupLabels:Record<string,string>={customer_project:"Müşteri Projesi",portfolio:"Kişisel Proje"};
 const categoryLabels:Record<string,string>={panel:"Panel",application:"Uygulama",website:"Web Sitesi",game:"Oyun"};
 const providerLabels:Record<string,string>={vercel:"Vercel",cloudflare:"Cloudflare",other:"Diğer",supabase:"Supabase",cloudflare_d1:"Cloudflare D1",none:"Yok"};
 const hostingLabels:Record<string,string>={live:"Yayında",deploying:"Yayınlanıyor",paused:"Durduruldu",error:"Hata",not_deployed:"Yayında Değil",unknown:"Bilinmiyor",ready:"Yayında",active:"Yayında"};

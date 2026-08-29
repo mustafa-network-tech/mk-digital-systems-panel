@@ -1,13 +1,12 @@
+import {ProjectPathFields} from "@/components/project-path-fields";
+
 type CustomerOption={id:string;name:string};
 type ProjectValues=Record<string,string|boolean|null|undefined>;
 
 export function ProjectFormFields({customers,project={}}:{customers:CustomerOption[];project?:ProjectValues}){
   return <>
     <Section title="Temel Bilgiler">
-      <Field name="name" label="Proje adı" required defaultValue={project.name as string}/><Field name="short_name" label="Kısa ad / kod" defaultValue={project.short_name as string}/>
-      <label className="text-sm">Proje grubu<select name="project_group" defaultValue={(project.project_group as string)||"portfolio"} className="field mt-2"><option value="customer_project">Müşteri Projesi</option><option value="portfolio">Portföy</option></select></label>
-      <label className="text-sm">Kategori<select name="category" defaultValue={(project.category as string)||""} className="field mt-2"><option value="">Seçilmedi</option><option value="panel">Panel</option><option value="application">Uygulama</option><option value="website">Web Sitesi</option><option value="game">Oyun</option></select></label>
-      <label className="text-sm">Müşteri<select name="customer_id" defaultValue={(project.customer_id as string)||""} className="field mt-2"><option value="">Müşteri seçilmedi</option>{customers.map(customer=><option value={customer.id} key={customer.id}>{customer.name}</option>)}</select></label>
+      <ProjectPathFields customers={customers} initial={{name:project.name as string,short_name:project.short_name as string,project_group:project.project_group as string,category:project.category as string,customer_id:project.customer_id as string,local_source_path:project.local_source_path as string}}/>
       <Select name="status" label="Proje durumu" value={(project.status as string)||"fikir"} options={[["fikir","Fikir"],["gelistiriliyor","Geliştiriliyor"],["test","Test"],["aktif","Aktif"],["bakim","Bakım"],["beklemede","Beklemede"],["tamamlandi","Tamamlandı"],["arsiv","Arşiv"]]}/>
       <label className="text-sm md:col-span-2">Kısa açıklama <span className="muted">(liste görünümünde proje adının altında gösterilir)</span><textarea name="short_description" maxLength={240} defaultValue={(project.short_description as string)||""} className="field mt-2" rows={2}/></label>
       <label className="text-sm md:col-span-2">Ayrıntılı açıklama<textarea name="detailed_description" maxLength={10000} defaultValue={(project.detailed_description as string)||(project.description as string)||""} className="field mt-2" rows={5}/></label>
@@ -15,8 +14,8 @@ export function ProjectFormFields({customers,project={}}:{customers:CustomerOpti
     </Section>
     <Section title="Teknolojiler ve Kaynak Kod">
       <label className="text-sm md:col-span-2">Teknolojiler <span className="muted">(virgülle ayırın)</span><input name="technologies" defaultValue={(project.technologies as string)||""} className="field mt-2" placeholder="Next.js, TypeScript, Supabase"/></label>
-      <Field name="local_source_path" label="Yerel kaynak kod klasör yolu" defaultValue={project.local_source_path as string}/><Field name="github_repo" label="GitHub depo URL’si" type="url" defaultValue={project.github_repo as string}/>
-      <Field name="github_repo_name" label="GitHub depo adı" defaultValue={project.github_repo_name as string}/><Field name="github_default_branch" label="Ana branch" defaultValue={project.github_default_branch as string} placeholder="main"/>
+      <Field name="github_repo" label="GitHub depo URL’si" type="url" defaultValue={project.github_repo as string}/><Field name="github_repo_name" label="GitHub depo adı" defaultValue={project.github_repo_name as string}/>
+      <Field name="github_default_branch" label="Ana branch" defaultValue={project.github_default_branch as string} placeholder="main"/>
     </Section>
     <Section title="Hosting ve Canlı Yayın">
       <label className="text-sm">Hosting sağlayıcısı<select name="hosting_provider" defaultValue={(project.hosting_provider as string)||"vercel"} className="field mt-2"><option value="vercel">Vercel</option><option value="cloudflare">Cloudflare</option><option value="other">Diğer</option></select></label>

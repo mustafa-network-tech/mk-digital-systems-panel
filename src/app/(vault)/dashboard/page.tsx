@@ -1,91 +1,17 @@
 import Link from "next/link";
-import { Activity, Building2, CheckCircle2, FolderKanban, ShieldAlert, Users } from "lucide-react";
-import { Header } from "@/components/sidebar";
-import { Status } from "@/components/status";
-import { createClient } from "@/lib/supabase/server";
-import type { Project } from "@/lib/types";
+import {Activity,ArrowRight,CheckCircle2,FolderKanban,ShieldAlert,Users} from "lucide-react";
+import {Header} from "@/components/sidebar";
+import {Status} from "@/components/status";
+import {createClient} from "@/lib/supabase/server";
+import type {Project,ProjectGroup} from "@/lib/types";
 
-export default async function Dashboard() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("projects")
-    .select("*,customers(name)")
-    .eq("archived", false)
-    .order("updated_at", { ascending: false });
+export default async function Dashboard(){const supabase=await createClient();const {data,error}=await supabase.from("projects").select("*,customers(name)").eq("archived",false).order("updated_at",{ascending:false});if(error)throw new Error(error.message);const projects=(data||[]) as Project[],groupOf=(project:Project):ProjectGroup=>project.project_group||(project.customer_id?"customer_project":"portfolio"),portfolio=projects.filter(project=>groupOf(project)==="portfolio"),customers=projects.filter(project=>groupOf(project)==="customer_project"),stats=[{label:"Toplam proje",value:projects.length,detail:`${portfolio.length} kişisel · ${customers.length} müşteri`,icon:FolderKanban,tone:"blue"},{label:"Aktif",value:countStatus(projects,"aktif"),detail:"Canlı ve operasyonda",icon:Activity,tone:"green"},{label:"Geliştiriliyor",value:countStatus(projects,"gelistiriliyor"),detail:"Devam eden çalışmalar",icon:Users,tone:"violet"},{label:"Kritik",value:projects.filter(project=>project.critical||project.health_status==="critical").length,detail:"İlgi gerektiren kayıt",icon:ShieldAlert,tone:"red"}] as const;return <><Header title="Dashboard" description="MK Digital Systems proje operasyon görünümü."/><div className="space-y-5 p-4 sm:p-5 lg:p-6"><section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{stats.map(({label,value,detail,icon:Icon,tone})=><div className="panel-surface relative overflow-hidden p-4" key={label}><div className={`absolute inset-y-0 left-0 w-1 stat-${tone}`}/><div className="flex items-start justify-between gap-3"><div><div className="text-2xl font-black tracking-tight text-slate-950">{value}</div><div className="mt-0.5 text-sm font-bold text-slate-700">{label}</div><div className="mt-1 text-[11px] text-slate-500">{detail}</div></div><div className={`stat-icon stat-icon-${tone}`}><Icon size={17}/></div></div></div>)}</section>
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(300px,.7fr)]"><section className="panel-surface overflow-hidden"><div className="flex items-center justify-between border-b border-slate-200 px-4 py-3"><div><h2 className="text-sm font-bold text-slate-900">Son Güncellenen Projeler</h2><p className="mt-0.5 text-xs text-slate-500">En son hareket gören proje kayıtları</p></div><Link href="/projects" className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700">Tüm projeler<ArrowRight size={14}/></Link></div>{projects.length?<div className="divide-y divide-slate-100">{projects.slice(0,8).map(project=><Link href={`/projects/${project.id}`} className="group flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-blue-50/60" key={project.id}><div className="min-w-0"><div className="truncate text-sm font-bold text-slate-900 group-hover:text-blue-700">{project.name}</div>{project.short_description&&<div className="mt-0.5 truncate text-xs text-slate-500">({project.short_description})</div>}<div className="mt-1 text-[11px] font-medium text-slate-400">{groupOf(project)==="portfolio"?"Kişisel Proje":project.customers?.name||"Müşteri Projesi"} · {new Date(project.updated_at).toLocaleDateString("tr-TR")}</div></div><div className="flex shrink-0 items-center gap-2"><Status value={project.status}/><ArrowRight size={15} className="text-slate-300 group-hover:text-blue-600"/></div></Link>)}</div>:<Empty text="Henüz proje bulunmuyor."/>}</section>
+      <div className="space-y-5"><GroupSummary title="Kişisel Projeler" projects={portfolio} href="/projects"/><GroupSummary title="Müşteri Projeleri" projects={customers} href="/projects"/><section className="rounded-xl bg-[#0b1630] p-4 text-white"><div className="flex items-center gap-2 text-sm font-bold"><CheckCircle2 size={17} className="text-blue-400"/>Hızlı Erişim</div><div className="mt-3 grid gap-2"><QuickLink href="/projects/new" label="Yeni proje oluştur"/><QuickLink href="/domains" label="Domain durumlarını aç"/></div></section></div></div>
+  </div></>}
 
-  if (error) throw new Error(error.message);
-
-  const projects = (data ?? []) as Project[];
-  const internalProjects = projects.filter((project) => !project.customer_id);
-  const customerProjects = projects.filter((project) => Boolean(project.customer_id));
-  const generalStats = [
-    ["Toplam Proje", projects.length, FolderKanban, "#2563eb"],
-    ["Toplam Aktif", countStatus(projects, "aktif"), Activity, "#16a34a"],
-    ["Toplam Tamamlanan", countStatus(projects, "tamamlandi"), CheckCircle2, "#0891b2"],
-    ["Kritik Proje", projects.filter((project) => project.critical || project.health_status === "critical").length, ShieldAlert, "#dc2626"],
-  ] as const;
-
-  return <>
-    <Header title="Dashboard" description="MK Digital Systems ve müşteri projelerinin operasyon özeti."/>
-    <div className="space-y-7 p-5 lg:p-8">
-      <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Genel Sistem Özeti</h2>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {generalStats.map(([label, value, Icon, color]) => <div className="card flex items-center gap-4 p-4" key={label}>
-            <div className="grid h-9 w-9 place-items-center rounded-lg bg-slate-50"><Icon size={18} color={color}/></div>
-            <div><div className="text-xl font-bold">{value}</div><div className="text-sm muted">{label}</div></div>
-          </div>)}
-        </div>
-      </section>
-
-      <ProjectSection
-        title="MK Digital Systems Projeleri"
-        description="Şirket içi ürünler ve operasyon projeleri"
-        projects={internalProjects}
-        icon={Building2}
-        accent="blue"
-        emptyText="Henüz MK Digital Systems projesi bulunmuyor."
-      />
-
-      <ProjectSection
-        title="Müşteri Projeleri"
-        description="Müşterilere bağlı yürütülen projeler"
-        projects={customerProjects}
-        icon={Users}
-        accent="violet"
-        emptyText="Henüz müşteriye ait proje bulunmuyor."
-      />
-    </div>
-  </>;
-}
-
-function ProjectSection({ title, description, projects, icon: Icon, accent, emptyText }: { title: string; description: string; projects: Project[]; icon: typeof Building2; accent: "blue" | "violet"; emptyText: string }) {
-  const stats = [
-    ["Toplam", projects.length],
-    ["Aktif", countStatus(projects, "aktif")],
-    ["Geliştiriliyor", countStatus(projects, "gelistiriliyor")],
-    ["Tamamlandı", countStatus(projects, "tamamlandi")],
-    ["Kritik", projects.filter((project) => project.critical || project.health_status === "critical").length],
-  ];
-  const color = accent === "blue" ? "text-blue-600 bg-blue-50" : "text-violet-600 bg-violet-50";
-
-  return <section className="card overflow-hidden">
-    <div className="flex flex-col justify-between gap-4 border-b p-5 lg:flex-row lg:items-center">
-      <div className="flex items-center gap-3">
-        <div className={`grid h-10 w-10 place-items-center rounded-lg ${color}`}><Icon size={20}/></div>
-        <div><h2 className="font-bold">{title}</h2><p className="mt-0.5 text-sm muted">{description}</p></div>
-      </div>
-      <div className="grid grid-cols-5 gap-2">
-        {stats.map(([label, value]) => <div className="min-w-16 rounded-lg border bg-slate-50 px-3 py-2 text-center" key={label}>
-          <div className="font-bold">{value}</div><div className="mt-0.5 text-[11px] muted">{label}</div>
-        </div>)}
-      </div>
-    </div>
-    <div className="flex items-center justify-between border-b px-5 py-3"><h3 className="text-sm font-semibold">Son Güncellenen Projeler</h3><Link href="/projects" className="text-xs font-semibold text-blue-600">Tümünü gör →</Link></div>
-    {projects.length ? <div className="overflow-x-auto"><table><thead><tr><th>Proje</th><th>{accent === "blue" ? "Proje Sahibi" : "Müşteri"}</th><th>Durum</th><th>Güncelleme</th></tr></thead><tbody>{projects.slice(0, 5).map((project) => <tr key={project.id}><td><div className="flex items-center gap-2">{project.health_status === "healthy" && <span className="h-2.5 w-2.5 rounded-full bg-blue-600" title="Sağlıklı"/>}<Link href={`/projects/${project.id}`} className="font-semibold hover:text-blue-600">{project.name}</Link></div></td><td className="text-sm">{project.customers?.name ?? "MK Digital Systems"}</td><td><Status value={project.status}/></td><td className="text-sm muted">{new Date(project.updated_at).toLocaleDateString("tr-TR")}</td></tr>)}</tbody></table></div> : <div className="p-10 text-center text-sm muted">{emptyText}</div>}
-  </section>;
-}
-
-function countStatus(projects: Project[], status: string) {
-  return projects.filter((project) => project.status === status).length;
-}
+function GroupSummary({title,projects,href}:{title:string;projects:Project[];href:string}){return <section className="panel-surface p-4"><div className="flex items-center justify-between"><h2 className="text-sm font-bold text-slate-800">{title}</h2><Link href={href} className="text-slate-400 hover:text-blue-600"><ArrowRight size={15}/></Link></div><div className="mt-3 grid grid-cols-3 divide-x divide-slate-200 rounded-lg bg-slate-50 py-2.5 text-center"><MiniStat label="Toplam" value={projects.length}/><MiniStat label="Aktif" value={countStatus(projects,"aktif")}/><MiniStat label="Devam" value={countStatus(projects,"gelistiriliyor")}/></div></section>}
+function MiniStat({label,value}:{label:string;value:number}){return <div><div className="font-black text-slate-900">{value}</div><div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{label}</div></div>}
+function QuickLink({href,label}:{href:string;label:string}){return <Link href={href} className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:border-blue-500/40 hover:bg-blue-500/10 hover:text-white">{label}<ArrowRight size={14}/></Link>}
+function Empty({text}:{text:string}){return <div className="p-10 text-center text-sm text-slate-500">{text}</div>}
+function countStatus(projects:Project[],status:string){return projects.filter(project=>project.status===status).length}
