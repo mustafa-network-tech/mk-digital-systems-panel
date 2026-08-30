@@ -19,12 +19,14 @@ export function ProjectTable({projects,categories,emptyText="Henüz proje bulunm
   const current=(isUnassigned?unassignedParentId:currentId)?byId.get((isUnassigned?unassignedParentId:currentId)!)||null:null;
   const children=useMemo(()=>isUnassigned?[]:categories.filter(item=>item.project_group===group&&item.parent_id===currentId).sort(sortNodes),[categories,group,currentId,isUnassigned]);
   const path=useMemo(()=>{const result:ProjectCategoryNode[]=[];let item=current;while(item){result.unshift(item);item=item.parent_id?byId.get(item.parent_id)||null:null}return result},[current,byId]);
-  const statusScope=current?.project_group==="customer_project"&&!current.parent_id?current.customer_status:null;
-  const unassigned=projects.filter(project=>!project.project_category_id&&projectGroup(project)===group&&(!statusScope||customerBucket(project.status)===statusScope));
-  const showUnassigned=!isUnassigned&&((group==="portfolio"&&!currentId)||(group==="customer_project"&&Boolean(statusScope)))&&unassigned.length>0;
+  const statusScope=current?.project_group==="customer_project"?current.customer_status:null;
+  const categoryScope=current?.category_type||null;
+  const unassigned=projects.filter(project=>!project.project_category_id&&projectGroup(project)===group&&(!statusScope||customerBucket(project.status)===statusScope)&&(categoryScope?project.category===categoryScope:!project.category));
+  const unassignedLevel=Boolean(current?.category_type)||(group==="portfolio"&&!currentId)||(current?.project_group==="customer_project"&&!current.parent_id);
+  const showUnassigned=!isUnassigned&&unassignedLevel&&unassigned.length>0;
   const descendants=useMemo(()=>currentId&&!isUnassigned?descendantIds(currentId,categories):new Set(categories.filter(item=>item.project_group===group).map(item=>item.id)),[currentId,isUnassigned,categories,group]);
   const assignedBranch=projects.filter(project=>project.project_category_id&&descendants.has(project.project_category_id));
-  const branchProjects=isUnassigned?unassigned:[...assignedBranch,...((!currentId||statusScope)?unassigned:[])];
+  const branchProjects=isUnassigned?unassigned:[...assignedBranch,...(current?.category_type?unassigned:[])];
   const directProjects=isUnassigned?unassigned:projects.filter(project=>project.project_category_id===currentId);
   const term=query.trim().toLocaleLowerCase("tr");
   const searchProjects=term?branchProjects.filter(project=>`${project.name} ${project.short_description||""} ${project.customers?.name||""}`.toLocaleLowerCase("tr").includes(term)):[];
@@ -50,4 +52,4 @@ function projectGroup(project:Project):ProjectGroup{return project.project_group
 function customerBucket(status:string){return status==="tamamlandi"?"tamamlandi":status==="test"?"test":"beklemede"}
 function sortNodes(a:ProjectCategoryNode,b:ProjectCategoryNode){return a.sort_order-b.sort_order||a.name.localeCompare(b.name,"tr")}
 function descendantIds(rootId:string,categories:ProjectCategoryNode[]){const result=new Set<string>([rootId]);let changed=true;while(changed){changed=false;for(const item of categories)if(item.parent_id&&result.has(item.parent_id)&&!result.has(item.id)){result.add(item.id);changed=true}}return result}
-function countProjects(category:ProjectCategoryNode,projects:Project[],categories:ProjectCategoryNode[]){const ids=descendantIds(category.id,categories);const assigned=projects.filter(project=>project.project_category_id&&ids.has(project.project_category_id)).length;if(category.project_group==="customer_project"&&!category.parent_id)return assigned+projects.filter(project=>!project.project_category_id&&projectGroup(project)==="customer_project"&&customerBucket(project.status)===category.customer_status).length;return assigned}
+function countProjects(category:ProjectCategoryNode,projects:Project[],categories:ProjectCategoryNode[]){const ids=descendantIds(category.id,categories);const assigned=projects.filter(project=>project.project_category_id&&ids.has(project.project_category_id)).length;const legacy=projects.filter(project=>!project.project_category_id&&projectGroup(project)===category.project_group&&(!category.customer_status||customerBucket(project.status)===category.customer_status)&&(!category.category_type||project.category===category.category_type)).length;return assigned+legacy}
